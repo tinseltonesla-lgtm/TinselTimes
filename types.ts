@@ -95,4 +95,4 @@ export interface Gig {
   status: 'Draft' | 'Confirmed' | 'Completed';
 }
 
-export type View = 'SINGER_PORTAL' | 'ADMIN_PORTAL' | 'LANDING' | 'REGISTRATION';
+export type View = 'CAROLER_PORTAL' | 'ADMIN_PORTAL' | 'LANDING' | 'REGISTRATION';

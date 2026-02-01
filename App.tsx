@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Performer, Gig, Conflict, AssignmentStatus } from './types';
 import { INITIAL_PERFORMERS, INITIAL_GIGS } from './constants';
 import AdminPortal from './components/AdminPortal';
-import CarolerPortal from './components/CarolerPortal'; // Updated import
+import CarolerPortal from './components/CarolerPortal';
 import RegistrationForm from './components/RegistrationForm';
 import Landing from './components/Landing';
 import { Music, User, LogOut, Shield } from 'lucide-react';
@@ -13,7 +13,6 @@ const App: React.FC = () => {
   const [performers, setPerformers] = useState<Performer[]>(INITIAL_PERFORMERS);
   const [gigs, setGigs] = useState<Gig[]>(INITIAL_GIGS);
   const [currentUser, setCurrentUser] = useState<Performer | null>(null);
-  const [isAdminView, setIsAdminView] = useState(false);
 
   useEffect(() => {
     const savedPerformers = localStorage.getItem('carolsync_v3_performers');
@@ -33,31 +32,26 @@ const App: React.FC = () => {
     setCurrentUser(user);
     if (user.isAdmin) {
       setView('ADMIN_PORTAL');
-      setIsAdminView(true);
     } else {
-      setView('SINGER_PORTAL');
-      setIsAdminView(false);
+      setView('CAROLER_PORTAL');
     }
   };
 
   const handleLogout = () => {
     setCurrentUser(null);
-    setIsAdminView(false);
     setView('LANDING');
   };
 
   const togglePortal = () => {
     if (currentUser?.isAdmin) {
-      setView(view === 'ADMIN_PORTAL' ? 'SINGER_PORTAL' : 'ADMIN_PORTAL');
+      setView(view === 'ADMIN_PORTAL' ? 'CAROLER_PORTAL' : 'ADMIN_PORTAL');
     }
   };
 
   const handleRegister = (newPerformer: Performer) => {
     setPerformers(prev => [...prev, newPerformer]);
     setCurrentUser(newPerformer);
-    // Registration is only for carolers now
-    setView('SINGER_PORTAL');
-    setIsAdminView(false);
+    setView('CAROLER_PORTAL');
   };
 
   const updatePerformerConflicts = (id: string, conflicts: Conflict[]) => {
@@ -108,8 +102,7 @@ const App: React.FC = () => {
     }));
   };
 
-  // Only show Switch if the admin actually has vocal roles (Dual user)
-  const canSwitchToSinger = currentUser?.isAdmin && currentUser.roles.length > 0;
+  const canSwitchToCaroler = currentUser?.isAdmin && currentUser.roles.length > 0;
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
@@ -122,7 +115,7 @@ const App: React.FC = () => {
                 <span className="serif text-2xl font-bold tracking-tight text-black">TinselTimes</span>
               </div>
               <div className="flex items-center gap-4">
-                {canSwitchToSinger && (
+                {canSwitchToCaroler && (
                   <button 
                     onClick={togglePortal}
                     className="flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-full text-xs font-black uppercase tracking-widest hover:bg-brandCobalt hover:text-white transition-all"
@@ -163,9 +156,9 @@ const App: React.FC = () => {
           />
         )}
         
-        {view === 'SINGER_PORTAL' && currentUser && (
+        {view === 'CAROLER_PORTAL' && currentUser && (
           <CarolerPortal 
-            singer={currentUser} 
+            caroler={currentUser} 
             gigs={gigs} 
             onUpdateConflicts={(conflicts) => updatePerformerConflicts(currentUser.id, conflicts)} 
             onUpdateProfile={updatePerformer}

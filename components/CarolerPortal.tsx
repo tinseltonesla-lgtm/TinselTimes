@@ -4,10 +4,10 @@ import { Performer, Gig, Conflict, Role, Language, Fluency, AssignmentStatus } f
 import { Calendar, Clock, MapPin, Plus, X, ListTodo, Star, AlertTriangle, ArrowRight, User, Settings, Save, Lock, Phone, Heart, Plane, Ruler, Globe, Mail, Instagram, CheckCircle, AlertCircle, Bell } from 'lucide-react';
 
 interface CarolerPortalProps {
-  singer: Performer;
+  caroler: Performer;
   gigs: Gig[];
   onUpdateConflicts: (conflicts: Conflict[]) => void;
-  onUpdateProfile: (updatedSinger: Performer) => void;
+  onUpdateProfile: (updatedCaroler: Performer) => void;
   onUpdateGigAssignment?: (gigId: string, performerId: string, status: AssignmentStatus) => void;
 }
 
@@ -20,7 +20,7 @@ const formatTime = (time: string) => {
   return `${h12}:${min} ${ampm}`;
 };
 
-const CarolerPortal: React.FC<CarolerPortalProps> = ({ singer, gigs, onUpdateConflicts, onUpdateProfile, onUpdateGigAssignment }) => {
+const CarolerPortal: React.FC<CarolerPortalProps> = ({ caroler, gigs, onUpdateConflicts, onUpdateProfile, onUpdateGigAssignment }) => {
   const [activeTab, setActiveTab] = useState<'SCHEDULE' | 'PROFILE'>('SCHEDULE');
   const [isRange, setIsRange] = useState(false);
   const [newConflict, setNewConflict] = useState<Partial<Conflict>>({
@@ -32,15 +32,15 @@ const CarolerPortal: React.FC<CarolerPortalProps> = ({ singer, gigs, onUpdateCon
   });
 
   // Profile Edit State
-  const [editProfile, setEditProfile] = useState<Performer>({ ...singer });
+  const [editProfile, setEditProfile] = useState<Performer>({ ...caroler });
   const [saveSuccess, setSaveSuccess] = useState(false);
   
   const assignedGigs = gigs.filter(g => 
-    g.assignments.some(a => a.performerId === singer.id)
+    g.assignments.some(a => a.performerId === caroler.id)
   ).sort((a,b) => a.date.localeCompare(b.date));
 
   const pendingGigs = assignedGigs.filter(g => 
-    g.assignments.find(a => a.performerId === singer.id)?.status === 'Pending'
+    g.assignments.find(a => a.performerId === caroler.id)?.status === 'Pending'
   );
 
   const handleAddConflict = (e: React.FormEvent) => {
@@ -56,7 +56,7 @@ const CarolerPortal: React.FC<CarolerPortalProps> = ({ singer, gigs, onUpdateCon
       endTime: newConflict.allDay ? undefined : newConflict.endTime,
     };
 
-    onUpdateConflicts([...singer.conflicts, conflictToAdd]);
+    onUpdateConflicts([...caroler.conflicts, conflictToAdd]);
     setNewConflict({
       date: '',
       endDate: '',
@@ -68,7 +68,7 @@ const CarolerPortal: React.FC<CarolerPortalProps> = ({ singer, gigs, onUpdateCon
   };
 
   const removeConflict = (index: number) => {
-    onUpdateConflicts(singer.conflicts.filter((_, i) => i !== index));
+    onUpdateConflicts(caroler.conflicts.filter((_, i) => i !== index));
   };
 
   const handleUpdateProfile = (e: React.FormEvent) => {
@@ -97,7 +97,7 @@ const CarolerPortal: React.FC<CarolerPortalProps> = ({ singer, gigs, onUpdateCon
       if (!confirm) return;
     }
     if (onUpdateGigAssignment) {
-      onUpdateGigAssignment(gigId, singer.id, status);
+      onUpdateGigAssignment(gigId, caroler.id, status);
     }
   };
 
@@ -133,13 +133,13 @@ const CarolerPortal: React.FC<CarolerPortalProps> = ({ singer, gigs, onUpdateCon
           {/* Left Column: My Schedule */}
           <div className="lg:col-span-2 space-y-12">
             <div>
-              <h1 className="serif text-5xl font-bold text-black mb-4">Hello, {singer.firstName}</h1>
+              <h1 className="serif text-5xl font-bold text-black mb-4">Hello, {caroler.firstName}</h1>
               <div className="flex flex-wrap gap-2.5 items-center">
                 <p className="text-gray-500 font-medium mr-2">Your Profile Roles:</p>
-                {singer.roles.map(r => (
+                {caroler.roles.map(r => (
                   <span key={r} className="bg-pink-50 text-brandPink text-[10px] font-black px-3 py-1 rounded-full border border-pink-100 uppercase tracking-widest">{r}</span>
                 ))}
-                {singer.isSubOnly && (
+                {caroler.isSubOnly && (
                   <span className="bg-amber-50 text-amber-600 text-[10px] font-black px-3 py-1 rounded-full border border-amber-100 flex items-center gap-1.5 uppercase tracking-widest">
                     <Star size={12} fill="currentColor" /> Sub Only
                   </span>
@@ -196,7 +196,7 @@ const CarolerPortal: React.FC<CarolerPortalProps> = ({ singer, gigs, onUpdateCon
               {assignedGigs.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {assignedGigs.map(gig => {
-                    const assignment = gig.assignments.find(a => a.performerId === singer.id);
+                    const assignment = gig.assignments.find(a => a.performerId === caroler.id);
                     const status = assignment?.status || 'Pending';
                     
                     return (
@@ -367,7 +367,7 @@ const CarolerPortal: React.FC<CarolerPortalProps> = ({ singer, gigs, onUpdateCon
 
               <div className="space-y-3 max-h-[30rem] overflow-y-auto pr-3 custom-scrollbar">
                 <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">Saved Conflicts</h3>
-                {singer.conflicts.map((conflict, index) => (
+                {caroler.conflicts.map((conflict, index) => (
                   <div key={index} className="flex items-center justify-between p-5 bg-gray-50/50 rounded-2xl group border border-transparent hover:border-brandPink/10 hover:bg-white transition-all">
                     <div className="overflow-hidden">
                       <div className="text-sm font-black text-gray-800 flex items-center gap-3 flex-wrap">
@@ -393,7 +393,7 @@ const CarolerPortal: React.FC<CarolerPortalProps> = ({ singer, gigs, onUpdateCon
                     </button>
                   </div>
                 ))}
-                {singer.conflicts.length === 0 && (
+                {caroler.conflicts.length === 0 && (
                   <div className="text-center py-10 text-gray-300 italic text-sm font-medium">
                     No conflicts on record.
                   </div>
